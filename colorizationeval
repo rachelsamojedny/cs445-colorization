@@ -1,0 +1,37 @@
+import torch
+import numpy as np
+from sklearn.metrics import roc_auc_score
+import torchvision.models as models
+
+def evaluate(model, test_loader, criterion):
+    #Evaluates colorized images with off the shelf classifier
+    #VGG trained to predict ImageNet classes from real color photos
+    #Testing to see if it can predict ImageNet classes from colorized photos from our model
+    #Evaluates perceptual accuracy
+    #TODO: make sure it works once model is created (couldn't test without model)
+    vgg = models.vgg19(pretrained=True).eval().to(model.device)
+    correct_real = 0
+    correct_fake = 0
+    total = 0
+
+    with torch.no_grad():
+        for images, labels in test_loader:
+            images, labels = images.to(model.device), labels.to(model.device)
+            outputs = vgg(images)
+            _, predicted = torch.max(outputs.data, 1)
+            correct_real += (predicted == labels).sum().item()
+
+            colorized_images = model(images)
+            outputs_fake = vgg(colorized_images)
+            _, predicted_fake = torch.max(outputs_fake.data, 1)
+            correct_fake += (predicted_fake == labels).sum().item()
+
+            total += labels.size(0)
+
+    accuracy_real = 100 * correct_real / total
+    accuracy_fake = 100 * correct_fake / total
+
+    print(f'Accuracy on real color photos: {accuracy_real}%')
+    print(f'Accuracy on fake colorized images: {accuracy_fake}%')
+
+    return accuracy_real, accuracy_fake
