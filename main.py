@@ -8,6 +8,9 @@ from tqdm import tqdm
 import torch.nn.functional as F
 import colorizationnet 
 import colorizationdataset
+from colorizationnet import ColorizationCNN
+from colorizationdataset import ColorizationDataset
+from train import train
 
 # Define the main function
 def main():
@@ -20,17 +23,30 @@ def main():
     transform = transforms.Compose([
         # Implement image transformations (e.g., resizing, normalization)
     ])
-    
+
     # Create dataset instances
-    train_dataset = ColorizationDataset(root_dir='path/to/train/dataset', transform=transform)
-    test_dataset = ColorizationDataset(root_dir='path/to/test/dataset', transform=transform)
+    #train_dataset = ColorizationDataset(root = "./dataset/images", transform=transforms.Compose([transforms.ToTensor()]))
+    #test_dataset = ColorizationDataset(root = "./dataset/images", transform=transforms.Compose([transforms.ToTensor()]))
+
+
+
+    #Convert RGB images to LAB first
+    
+    train_dataset = ImageFolder(root = "./dataset/orig", transform = transforms.Compose([
+        transforms.Resize((800, 500)), transforms.ToTensor()
+    ]))
+    test_dataset = None #
     
     # Create data loaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+
+    num_channels_in = None # grayscale: H*W*1
+    num_channels_out = None # ab channel: H*W*2
+    im_size = None #
     
     # Create model instance
-    model = ColorizationCNN()
+    model = ColorizationCNN(learning_rate, num_channels_in, num_channels_out, im_size)
     
     # Define loss function and optimizer
     criterion = nn.MSELoss()
