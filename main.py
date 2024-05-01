@@ -18,26 +18,20 @@ def main():
     batch_size = 32
     learning_rate = 0.001
     num_epochs = 10
+
+    num_channels_in = 1
+    num_channels_out = 2
+    im_size = 256
     
+    #reads in data as lab images of size (256, 256) [image_num, y, x, channel]
+    train_color_ims, test_color_ims = read_in_data("../data/colorimages", im_size)
 
+    train_dataset = ColorizationDataset(train_color_ims[:,:,:,0], train_color_ims)
+    test_dataset = ColorizationDataset(test_color_ims[:,:,:,0], test_color_ims)
 
-    # Create dataset instances
-    image_list = read_in_data("../data/colorimages")
-
-    train_dataset = ImageFolder(root = "./dataset/orig", transform = transforms.Compose([
-        transforms.Resize((800, 500)), transforms.ToTensor()
-    ]))
-    test_dataset = None #
-    
-    # Create data loaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
-    num_channels_in = None # grayscale: H*W*1
-    num_channels_out = None # ab channel: H*W*2
-    im_size = None #
-    
-    # Create model instance
     model = ColorizationCNN(learning_rate, num_channels_in, num_channels_out, im_size)
     
     # Define loss function and optimizer

@@ -19,10 +19,16 @@ def read_in_data(directory, im_size):
             lab_img = img.convert('LAB')
             lab_im_list.append(lab_img)
     lab_im_list = resize_images(lab_im_list, target_size, 'bilinear')
+
+
+
     np_array_list = [np.array(img) for img in lab_im_list]
-
-
-    return np.array(np_array_list)
+    im_list = np.array(np_array_list)
+    #20% for testing
+    test_size = int(0.2 * len(im_list)) 
+    train = im_list[test_size:]
+    test = im_list[:test_size]
+    return train, test
 
 class ColorizationDataset(Dataset):
     def __init__(self, x, y):
