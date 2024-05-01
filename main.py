@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader, Dataset
 import torchvision.transforms as transforms
 from torchvision.datasets import ImageFolder
 from tqdm import tqdm
+import numpy as np
 import torch.nn.functional as F
 import colorizationnet 
 import colorizationdataset
@@ -42,7 +43,20 @@ def main():
     train(model, train_loader, criterion, optimizer, num_epochs)
     
     # Evaluate the model
-    evaluate(model, test_loader, criterion)
+    model.eval() 
+    output_imgs = []
+    for i,sample in enumerate(test_dataset['input']):
+        
+        grey = test_dataset['input'][i]
+        color = test_dataset['output'][i]
+        y = model.forward(grey)
+
+        color_im_out = np.stack((grey, color[:,:,0], color[:,:,1]), axis=-1)
+        output_imgs.append(color_im_out)
+
+    
+
+    output_imgs = np.array(output_imgs)
 
 if __name__ == "__main__":
     main()
