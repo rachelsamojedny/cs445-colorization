@@ -4,27 +4,25 @@ import pickle
 from torch.utils.data import Dataset, DataLoader
 import torch
 import random
+import os
+from pillow import Image
 
 #potentially read in a dataset using pickle, may have to change depending on our dataset.
 
-# def unpickle(file):
-#     with open(file, 'rb') as fo:
-#         dict = pickle.load(fo, encoding='bytes')
-#     return dict
+def read_in_data(directory, im_size):
+    lab_im_list = [] 
+    target_size = (im_size, im_size)
+    for filename in os.listdir(directory):
+        if filename.endswith('.jpg') or filename.endswith('.png') or filename.endswith('.jpeg'):
+            filepath = os.path.join(directory, filename)
+            img = Image.open(filepath)
+            lab_img = img.convert('LAB')
+            lab_im_list.append(lab_img)
+    lab_im_list = resize_images(lab_im_list, target_size, 'bilinear')
+    np_array_list = [np.array(img) for img in lab_im_list]
 
-# def load_dataset(filename, full=False):
-#     A = unpickle(filename) # np.loadtxt('data_batch_1')
-#     X = A[b'data']
-#     Y = A[b'labels'].astype(int)
-#     if full:
-#         return X,Y
-    
-#     test_size = int(0.25 * len(X)) # set aside 25% for testing
-#     X_test = X[:test_size]
-#     Y_test = Y[:test_size]
-#     X = X[test_size:]
-#     Y = Y[test_size:]
-#     return X,Y,X_test,Y_test
+
+    return np.array(np_array_list)
 
 class ColorizationDataset(Dataset):
     def __init__(self, x, y):

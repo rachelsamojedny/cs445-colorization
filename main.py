@@ -9,7 +9,7 @@ import torch.nn.functional as F
 import colorizationnet 
 import colorizationdataset
 from colorizationnet import ColorizationCNN
-from colorizationdataset import ColorizationDataset
+from colorizationdataset import ColorizationDataset, read_in_data
 from train import train
 
 # Define the main function
@@ -19,19 +19,11 @@ def main():
     learning_rate = 0.001
     num_epochs = 10
     
-    # Define data transformations
-    transform = transforms.Compose([
-        # Implement image transformations (e.g., resizing, normalization)
-    ])
+
 
     # Create dataset instances
-    #train_dataset = ColorizationDataset(root = "./dataset/images", transform=transforms.Compose([transforms.ToTensor()]))
-    #test_dataset = ColorizationDataset(root = "./dataset/images", transform=transforms.Compose([transforms.ToTensor()]))
+    image_list = read_in_data("../data/colorimages")
 
-
-
-    #Convert RGB images to LAB first
-    
     train_dataset = ImageFolder(root = "./dataset/orig", transform = transforms.Compose([
         transforms.Resize((800, 500)), transforms.ToTensor()
     ]))

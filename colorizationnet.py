@@ -103,7 +103,7 @@ def fit(train_set,train_labels,dev_set,epochs,batch_size=100):
     train_dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
     output_imgs = []
-    net = ColorizationCNN(.01, torch.nn.CrossEntropyLoss(), 1, 3, 256)
+    net = ColorizationCNN(.01, torch.nn.CrossEntropyLoss(), 1, 2, 256)
 
     
     #load and normalize data loaders for training and dev set.
