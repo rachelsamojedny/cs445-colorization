@@ -15,7 +15,7 @@ def print_model_parameters(model):
         if param.requires_grad:
             print(name, param.data)
 
-def train(net, train_loader, criterion, optimizer, num_epochs, report_interval = 2):
+def train(net, train_loader, criterion, optimizer, num_epochs, report_interval = 5):
     net.train()
     running_loss = 0
     for epoch in range(num_epochs):
@@ -50,7 +50,7 @@ def train(net, train_loader, criterion, optimizer, num_epochs, report_interval =
             # print(l_channel.shape)
             # print("res_shape")
             # print(results.shape)
-            reshaped_results = results.view(results.size(0), 256, 256, 2)
+            reshaped_results = results.view(results.size(0), 256, 256, 2) * 255.0
 
             #lab_output = torch.from_numpy(np.concatenate((l_channel, reshaped_resultsd.detach().numpy()), axis=3))
             lab_output = torch.cat((l_channel, reshaped_results), dim = 3)
@@ -66,13 +66,13 @@ def train(net, train_loader, criterion, optimizer, num_epochs, report_interval =
 
             running_loss += loss.item()
             if i % report_interval + 1 == report_interval:
-                print("chan_l")
-                print(l_channel[0,:5,:5,0])
-                print("chan_a")
-                print(reshaped_results[0,:5,:5,0])
-                print("chan_b")
-                print(reshaped_results[0,:5,:5,1])
-                print("cat_chan_l")
+                # print("chan_l")
+                # print(l_channel[0,:5,:5,0])
+                # print("chan_a")
+                # print(reshaped_results[0,:5,:5,0])
+                # print("chan_b")
+                # print(reshaped_results[0,:5,:5,1])
+                # print("cat_chan_l")
                 # print(lab_output[0,:5,:5,0])     
                 # print("cat_chan_a")
                 # print(lab_output[0,:5,:5,1])
