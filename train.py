@@ -40,24 +40,24 @@ def train(net, train_loader, criterion, optimizer, num_epochs, report_interval =
 
 
 
-            print("l_shape")
-            print(l_channel.shape)
-            print("res_shape")
-            print(results.shape)
+            # print("l_shape")
+            # print(l_channel.shape)
+            # print("res_shape")
+            # print(results.shape)
             reshaped_results = results.view(results.size(0), 256, 256, 2)
 
             #lab_output = torch.from_numpy(np.concatenate((l_channel, reshaped_resultsd.detach().numpy()), axis=3))
             lab_output = torch.cat((l_channel, reshaped_results), dim = 3)
 
-            print("lab_output shape:", lab_output.shape)
-            print("color_images shape:", color_images.shape)
-            print(criterion)
+            # print("lab_output shape:", lab_output.shape)
+            # print("color_images shape:", color_images.shape)
+            # print(criterion)
             loss = criterion(lab_output, color_images)
             loss.backward()
             optimizer.step()
 
             running_loss = loss.item()
             if i % report_interval + 1 == report_interval:
-                print('report loss here')
+                print('report loss here: ' + str(int(i / report_interval)))
 
     return

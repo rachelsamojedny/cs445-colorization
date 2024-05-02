@@ -45,11 +45,16 @@ class ColorizationCNN(nn.Module):
         returns y an (N, out_size im_size, im_size ) Tensor of x passed through the model
 
         '''
+        flag = False
+        if len(x.shape) == 2:
+            x = torch.tensor(x).float()
+            x = x.unsqueeze(0)
 
+            flag = True
         #x may need to be reshaped here if the
         # print("x_shape_orig")
         # print(x.shape)
-        x = x.view(-1, self.num_in, self.im_size, self.im_size)
+        x = x.view(x.size(0), self.num_in, self.im_size, self.im_size)
         # print("x_reshape")
         # print(x.shape)
 
@@ -72,6 +77,9 @@ class ColorizationCNN(nn.Module):
         # print("x8_shape" + str(x8.shape))
 
         y = x6.permute(0, 2, 3, 1)
+        if flag:
+            y = y.squeeze(0) 
+
         return y
     
 

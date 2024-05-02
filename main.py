@@ -1,4 +1,5 @@
 import torch
+import os
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, Dataset
@@ -20,8 +21,8 @@ def main():
     print("main.py")
     # Define hyperparameters
     batch_size = 32
-    learning_rate = 0.001
-    num_epochs = 10
+    learning_rate = 0.01
+    num_epochs = 1
 
     num_channels_in = 1
     num_channels_out = 2
@@ -37,10 +38,6 @@ def main():
         
     # Define loss function and optimizer
     criterion = nn.MSELoss(reduction='mean')
-# <<<<<<< master
-# =======
-   
-# >>>>>>> main
 
     model = ColorizationCNN(learning_rate, criterion, num_channels_in, num_channels_out, im_size)
     
@@ -61,16 +58,43 @@ def main():
 
         color_im_out = np.stack((grey, color[:,:,0], color[:,:,1]), axis=-1)
         output_imgs.append(color_im_out)
+    lab_image = output_imgs[0]
+    l_c = lab_image[:,:,0]
+    a_c = lab_image[:,:,1]
+    b_c = lab_image[:,:,2]
+    print("c1")
+    print(l_c[:5,:5])
+    print("c2")
+    print(a_c[:5,:5])
+    print("c3")
+    print(b_c[:5:,:5])
+    rgb_image = lab2rgb(lab_image)
+    print("rgbc1")
+    print(rgb_image[:,:,0])
+    print("rgbc2")
+    print(rgb_image[:,:,1])
+    print("rgbc3")
+    print(rgb_image[:,:,2])
+    output_directory = 'data/outputimages'
 
-    
+    scaled_rgb_image = rgb_image * 255.0
 
-    output_imgs = np.array(output_imgs)
-
-    rgb_image = lab2rgb(output_imgs[0])
-
+# Clip the values to ensure they are within the valid range [0, 255]
+    scaled_rgb_image = np.clip(scaled_rgb_image, 0, 255)
+    output_file_path = os.path.join(output_directory, 'output_image.png')
     plt.imshow(rgb_image)
     plt.axis('off') 
-    plt.show()
+    plt.savefig(output_file_path)
+
+    # output_file_path = os.path.join(output_directory, 'expected_output_image.png')
+    # plt.imshow(np.array(test_dataset['output'][0]))
+    # plt.axis('off') 
+    # plt.savefig(output_file_path)
+
+    output_file_path = os.path.join(output_directory, 'scaled_output_image.png')
+    plt.imshow(np.array(scaled_rgb_image))
+    plt.axis('off') 
+    plt.savefig(output_file_path)
 
 
 if __name__ == "__main__":
