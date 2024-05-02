@@ -22,8 +22,8 @@ class ColorizationCNN(nn.Module):
 
         self.conv1 = nn.Conv2d(num_channels_in, 32, kernel_size=3, padding=1)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
-        self.conv4 = nn.Conv2d(128, 64, kernel_size=3, padding=1)
+        # self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
+        # self.conv4 = nn.Conv2d(128, 64, kernel_size=3, padding=1)
         self.conv5 = nn.Conv2d(64, 32, kernel_size=3, padding=1)
         self.conv6 = nn.Conv2d(32, num_channels_out, kernel_size=3, padding=1)
         
@@ -33,8 +33,8 @@ class ColorizationCNN(nn.Module):
         self.batchnorm4 = nn.BatchNorm2d(64)
         self.batchnorm5 = nn.BatchNorm2d(32)
         
-        self.upconv1 = nn.ConvTranspose2d(32, 32, kernel_size=4, stride=2, padding=1)
-        self.upconv2 = nn.ConvTranspose2d
+        self.upconv1 = nn.ConvTranspose2d(num_channels_out, 32, kernel_size=4, stride=2, padding=1)
+        self.upconv2 = nn.ConvTranspose2d(32, num_channels_out, kernel_size=4, stride=2, padding=1)
 
         self.opt = optim.SGD(self.parameters(), lr=lrate, momentum=.9)
 
@@ -47,22 +47,31 @@ class ColorizationCNN(nn.Module):
         '''
 
         #x may need to be reshaped here if the
+        # print("x_shape_orig")
+        # print(x.shape)
         x = x.view(-1, self.num_in, self.im_size, self.im_size)
-
+        # print("x_reshape")
+        # print(x.shape)
 
 
         x1 = F.relu(self.batchnorm1(self.conv1(x)))
+        # print("x1_shape" + str(x1.shape))
         x2 = F.relu(self.batchnorm2(self.conv2(x1)))
-        x3 = F.relu(self.batchnorm3(self.conv3(x2)))
-        x4 = F.relu(self.batchnorm4(self.conv4(x3)))
-        x5 = F.relu(self.batchnorm5(self.conv5(x4)))
+        # print("x2_shape" + str(x2.shape))
+        # x3 = F.relu(self.batchnorm3(self.conv3(x2)))
+        # x4 = F.relu(self.batchnorm4(self.conv4(x3)))
+        # x5 = F.relu(self.batchnorm5(self.conv5(x4)))
+        x5 = F.relu(self.batchnorm5(self.conv5(x2)))
+        # print("x5_shape" + str(x5.shape))
         x6 = torch.sigmoid(self.conv6(x5))  
-        
+        # print("x6_shape" + str(x6.shape))
         # Upsampling
-        x7 = F.relu(self.upconv1(x6))
-        x8 = torch.sigmoid(self.upconv2(x7))
+        # x7 = F.relu(self.upconv1(x6))
+        # print("x7_shape" + str(x7.shape))
+        # x8 = torch.sigmoid(self.upconv2(x7))
+        # print("x8_shape" + str(x8.shape))
 
-        y = x8.view(x8.size(0), -1)
+        y = x6.permute(0, 2, 3, 1)
         return y
     
 
@@ -88,7 +97,7 @@ class ColorizationCNN(nn.Module):
         #could try and compute a loss here if that is nessecary L.item()
 
 
-def fit(train_set,train_labels,dev_set,epochs,batch_size=100):
+def fit(train_set,train_labels,dev_set,epochs,batch_size=10):
     """ 
     Make NeuralNet object 'net'. Use net.step() to train a neural net
     and net(x) to evaluate the neural net.

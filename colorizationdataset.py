@@ -5,7 +5,7 @@ from torch.utils.data import Dataset, DataLoader
 import torch
 import random
 import os
-from pillow import Image
+from PIL import Image
 
 #potentially read in a dataset using pickle, may have to change depending on our dataset.
 
@@ -17,8 +17,8 @@ def read_in_data(directory, im_size):
             filepath = os.path.join(directory, filename)
             img = Image.open(filepath)
             lab_img = img.convert('LAB')
+            lab_img = lab_img.resize(target_size, Image.Resampling.BILINEAR)
             lab_im_list.append(lab_img)
-    lab_im_list = resize_images(lab_im_list, target_size, 'bilinear')
 
 
 

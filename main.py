@@ -12,6 +12,8 @@ import colorizationdataset
 from colorizationnet import ColorizationCNN
 from colorizationdataset import ColorizationDataset, read_in_data
 from train import train
+import matplotlib.pyplot as plt
+from skimage.color import lab2rgb
 
 # Define the main function
 def main():
@@ -25,18 +27,21 @@ def main():
     im_size = 256
     
     #reads in data as lab images of size (256, 256) [image_num, y, x, channel]
-    train_color_ims, test_color_ims = read_in_data("../data/colorimages", im_size)
+    train_color_ims, test_color_ims = read_in_data("data/colorimages", im_size)
 
     train_dataset = ColorizationDataset(train_color_ims[:,:,:,0], train_color_ims)
     test_dataset = ColorizationDataset(test_color_ims[:,:,:,0], test_color_ims)
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+        
+    # Define loss function and optimizer
+    criterion = nn.MSELoss(reduction='mean')
+   
 
-    model = ColorizationCNN(learning_rate, num_channels_in, num_channels_out, im_size)
+    model = ColorizationCNN(learning_rate, criterion, num_channels_in, num_channels_out, im_size)
     
     # Define loss function and optimizer
-    criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     
     # Train the model
@@ -57,6 +62,13 @@ def main():
     
 
     output_imgs = np.array(output_imgs)
+
+    rgb_image = lab2rgb(output_imgs[0])
+
+    plt.imshow(rgb_image)
+    plt.axis('off') 
+    plt.show()
+
 
 if __name__ == "__main__":
     main()
