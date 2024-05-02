@@ -37,6 +37,10 @@ def main():
         
     # Define loss function and optimizer
     criterion = nn.MSELoss(reduction='mean')
+# <<<<<<< master
+# =======
+   
+# >>>>>>> main
 
     model = ColorizationCNN(learning_rate, criterion, num_channels_in, num_channels_out, im_size)
     

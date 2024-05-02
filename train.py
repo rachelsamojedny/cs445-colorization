@@ -35,14 +35,20 @@ def train(net, train_loader, criterion, optimizer, num_epochs, report_interval =
             optimizer.zero_grad()
             results = net(gray_images)
 
+
             l_channel = torch.tensor(np.expand_dims(gray_images, axis=-1))
+
+
+
             print("l_shape")
             print(l_channel.shape)
             print("res_shape")
             print(results.shape)
             reshaped_results = results.view(results.size(0), 256, 256, 2)
+
             #lab_output = torch.from_numpy(np.concatenate((l_channel, reshaped_resultsd.detach().numpy()), axis=3))
             lab_output = torch.cat((l_channel, reshaped_results), dim = 3)
+
             print("lab_output shape:", lab_output.shape)
             print("color_images shape:", color_images.shape)
             print(criterion)
