@@ -17,6 +17,7 @@ from skimage.color import lab2rgb
 
 # Define the main function
 def main():
+    print("main.py")
     # Define hyperparameters
     batch_size = 32
     learning_rate = 0.001
@@ -25,7 +26,6 @@ def main():
     num_channels_in = 1
     num_channels_out = 2
     im_size = 256
-    
     #reads in data as lab images of size (256, 256) [image_num, y, x, channel]
     train_color_ims, test_color_ims = read_in_data("data/colorimages", im_size)
 
@@ -37,7 +37,10 @@ def main():
         
     # Define loss function and optimizer
     criterion = nn.MSELoss(reduction='mean')
+# <<<<<<< master
+# =======
    
+# >>>>>>> main
 
     model = ColorizationCNN(learning_rate, criterion, num_channels_in, num_channels_out, im_size)
     
@@ -50,10 +53,10 @@ def main():
     # Evaluate the model
     model.eval() 
     output_imgs = []
-    for i,sample in enumerate(test_dataset['input']):
+    for i,sample in enumerate(test_dataset):
         
-        grey = test_dataset['input'][i]
-        color = test_dataset['output'][i]
+        grey = sample['input']
+        color = sample['output']
         y = model.forward(grey)
 
         color_im_out = np.stack((grey, color[:,:,0], color[:,:,1]), axis=-1)
