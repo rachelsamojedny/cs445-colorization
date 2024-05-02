@@ -6,6 +6,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
 import colorizationdataset as cd
+import torch.nn.init as init
 
 
 
@@ -33,8 +34,17 @@ class ColorizationCNN(nn.Module):
         self.batchnorm4 = nn.BatchNorm2d(64)
         self.batchnorm5 = nn.BatchNorm2d(32)
         
-        self.upconv1 = nn.ConvTranspose2d(num_channels_out, 32, kernel_size=4, stride=2, padding=1)
-        self.upconv2 = nn.ConvTranspose2d(32, num_channels_out, kernel_size=4, stride=2, padding=1)
+        # self.upconv1 = nn.ConvTranspose2d(num_channels_out, 32, kernel_size=4, stride=2, padding=1)
+        # self.upconv2 = nn.ConvTranspose2d(32, num_channels_out, kernel_size=4, stride=2, padding=1)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d):
+                init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                if m.bias is not None:
+                    init.constant_(m.bias, 0)
+            elif isinstance(m, nn.BatchNorm2d):
+                init.constant_(m.weight, 1)
+                init.constant_(m.bias, 0)
 
         self.opt = optim.SGD(self.parameters(), lr=lrate, momentum=.9)
 

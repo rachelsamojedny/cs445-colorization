@@ -21,7 +21,7 @@ def main():
     print("main.py")
     # Define hyperparameters
     batch_size = 32
-    learning_rate = 0.01
+    learning_rate = 1
     num_epochs = 1
 
     num_channels_in = 1
@@ -33,6 +33,13 @@ def main():
     train_dataset = ColorizationDataset(train_color_ims[:,:,:,0], train_color_ims)
     test_dataset = ColorizationDataset(test_color_ims[:,:,:,0], test_color_ims)
 
+    print("sample photo")
+    print("l_chan")
+    print(train_color_ims[0,:10,:10,0])
+    print("a_chan")
+    print(train_color_ims[0,:10,:10,1])
+    print("b_chan")
+    print(train_color_ims[0,:10,:10,2])
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
         
@@ -55,6 +62,9 @@ def main():
         grey = sample['input']
         color = sample['output']
         y = model.forward(grey)
+
+      
+
 
         color_im_out = np.stack((grey, color[:,:,0], color[:,:,1]), axis=-1)
         output_imgs.append(color_im_out)
