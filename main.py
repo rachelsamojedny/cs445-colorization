@@ -17,7 +17,7 @@ from train import train
 import matplotlib.pyplot as plt
 from skimage.color import lab2rgb
 
-
+# Define the main function
 def main():
     print("main.py")
     # Define hyperparameters
@@ -40,19 +40,22 @@ def main():
     # print("a_chan")
     # print(train_color_ims[0,:10,:10,1])
     # print("b_chan")
-    # print(train_color_ims[0,:10,:10,2])
+    print(train_color_ims[0,:10,:10,2])
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
-
+        
     # Define loss function and optimizer
     criterion = nn.MSELoss(reduction='mean')
-    model = ColorizationCNN(learning_rate, criterion, num_channels_in, num_channels_out, im_size)
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
+    model = ColorizationCNN(learning_rate, criterion, num_channels_in, num_channels_out, im_size)
+    
+    # Define loss function and optimizer
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    
     # Train the model
     train(model, train_loader, criterion, optimizer, num_epochs)
-
-# Evaluate the model
+    
+    # Evaluate the model
     model.eval() 
     output_imgs = []
     vgg = models.vgg19(pretrained=True).eval()
@@ -73,11 +76,11 @@ def main():
             # colorized_images = colorized_images.permute(0, 3, 2, 1)
             # #print(colorized_images.shape)
             colorized_images = np.stack((grey, (colorized_images[:,:,0]).detach().numpy() * 255, (colorized_images[:,:,1]).detach().numpy() * 255), axis=-1)
-
+            
 
             colorized_images = torch.tensor(colorized_images).float().unsqueeze(0)
             colorized_images = colorized_images.permute(0, 3, 2, 1)
-           #print(colorized_images.shape)
+            #print(colorized_images.shape)
 
             color = torch.tensor(color).float().unsqueeze(0)
             color = color.permute(0, 3, 2, 1)
@@ -85,8 +88,8 @@ def main():
             outputs_fake = vgg(colorized_images) #run our fake colorized images thru VGG and see the scores
             outputs_real = vgg(color) #get the real labels using the output
 
-            predicted_fake = torch.max(outputs_fake.data, 1) #take the scores and get the prediction (which label has highest score)
-            predicted_real = torch.max(outputs_real.data, 1)
+            _, predicted_fake = torch.max(outputs_fake.data, 1) #take the scores and get the prediction (which label has highest score)
+            _, predicted_real = torch.max(outputs_real.data, 1)
             current_correct += (predicted_fake == predicted_real).sum().item() #how many predictions are correct
             correct_fake += current_correct
             current_total = len(sample['input']) 
@@ -103,13 +106,16 @@ def main():
     accuracy = 100 * correct_fake / total
 
     print(f'Accuracy on fake colorized images from model: {accuracy}%') #total accuracy of model
+
     lab_image = output_imgs[best_idx]
-    #lc = lab_image[:,:,0]
+    #l_c = lab_image[:,:,0]
     #a_c = lab_image[:,:,1]
     #b_c = lab_image[:,:,2]
     #print("c1")
+
     #print(l_c[:5,:5])
     #print("c2")
+
     #print(a_c[:5,:5])
     # print("c3")
     # print(b_c[:5:,:5])
@@ -142,5 +148,5 @@ def main():
     plt.savefig(output_file_path)
 
 
-if __name == "__main":
-    main
+if __name__ == "__main__":
+    main()
