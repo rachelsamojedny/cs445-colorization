@@ -7,10 +7,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 import colorizationdataset as cd
 import torch.nn.init as init
-
-
-
-
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class ColorizationCNN(nn.Module):
     def __init__(self, lrate, loss_fn, num_channels_in, num_channels_out, im_size):
         super(ColorizationCNN, self).__init__()
@@ -57,7 +54,7 @@ class ColorizationCNN(nn.Module):
         '''
         flag = False
         if len(x.shape) == 2:
-            x = torch.tensor(x).float()
+            x = torch.tensor(x).float().to(device)
             x = x.unsqueeze(0)
 
             flag = True

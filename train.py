@@ -7,6 +7,8 @@ from torch.utils.data import DataLoader
 import colorizationdataset
 from colorizationdataset import ColorizationDataset
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 def lab2gray(labimages):
     grayimages = labimages[:,0,:,:]
     return grayimages
@@ -35,14 +37,15 @@ def train(net, train_loader, criterion, optimizer, num_epochs, report_interval =
             # if i % report_interval + 1 == report_interval:
             #     print('report loss here')
         for i, batch in enumerate(train_loader):
-            gray_images = batch['input'].float()
-            color_images = batch['output'].float()
+            #print(len(train_loader))
+            gray_images = batch['input'].float().to(device)
+            color_images = batch['output'].float().to(device)
             optimizer.zero_grad()
-            results = net(gray_images)
+            results = net(gray_images).to(device)
             #maybe 
             # optimizer.step()
-
-            l_channel = torch.tensor(np.expand_dims(gray_images, axis=-1))
+            gray_images = gray_images.cpu()
+            l_channel = torch.tensor(np.expand_dims(gray_images, axis=-1)).to(device)
 
 
             if isDebug:
@@ -66,22 +69,22 @@ def train(net, train_loader, criterion, optimizer, num_epochs, report_interval =
             optimizer.step()
 
             running_loss += loss.item()
-            if i % report_interval + 1 == report_interval:
-                if isDebug:
-                    print("chan_l")
-                    print(l_channel[0,:5,:5,0])
-                    print("chan_a")
-                    print(reshaped_results[0,:5,:5,0])
-                    print("chan_b")
-                    print(reshaped_results[0,:5,:5,1])
-                    print("cat_chan_l")
-                    print(lab_output[0,:5,:5,0])     
-                    print("cat_chan_a")
-                    print(lab_output[0,:5,:5,1])
-                    print("cat_chan_b")
-                    print(lab_output[0,:5,:5,2])
-                    print_model_parameters(net)
-                print('avg loss here: ' + str(running_loss / report_interval))
-                running_loss = 0
+        if epoch % report_interval + 1 == report_interval:
+            if isDebug:
+                print("chan_l")
+                print(l_channel[0,:5,:5,0])
+                print("chan_a")
+                print(reshaped_results[0,:5,:5,0])
+                print("chan_b")
+                print(reshaped_results[0,:5,:5,1])
+                print("cat_chan_l")
+                print(lab_output[0,:5,:5,0])     
+                print("cat_chan_a")
+                print(lab_output[0,:5,:5,1])
+                print("cat_chan_b")
+                print(lab_output[0,:5,:5,2])
+                print_model_parameters(net)
+            print('avg loss here: ' + str(running_loss / report_interval))
+            running_loss = 0
 
     return
