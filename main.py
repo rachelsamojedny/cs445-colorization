@@ -5,6 +5,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, Dataset
 import torchvision.transforms as transforms
 from torchvision.datasets import ImageFolder
+import torchvision.models as models
 from tqdm import tqdm
 import numpy as np
 import torch.nn.functional as F
@@ -57,34 +58,74 @@ def main():
     # Evaluate the model
     model.eval() 
     output_imgs = []
-    for i,sample in enumerate(test_dataset):
-        
-        grey = sample['input']
-        color = sample['output']
-        y = model.forward(grey)
+    vgg = models.vgg19(pretrained=True).eval()
+    current_correct = 0
+    current_total = 0
+    correct_fake = 0
+    total = 0
+    best_accuracy = 0
+    best_idx = 0
+    with torch.no_grad():
+        for i,sample in enumerate(test_dataset):
+            grey = sample['input']
+            color = sample['output']
+            colorized_images = model.forward(grey)
 
-      
+            # colorized_images = colorized_images.unsqueeze(0)
+            # #print(colorized_images.shape)
+            # colorized_images = colorized_images.permute(0, 3, 2, 1)
+            # #print(colorized_images.shape)
+            colorized_images = np.stack((grey, (colorized_images[:,:,0]).detach().numpy() * 255, (colorized_images[:,:,1]).detach().numpy() * 255), axis=-1)
+            
 
+            colorized_images = torch.tensor(colorized_images).float().unsqueeze(0)
+            colorized_images = colorized_images.permute(0, 3, 2, 1)
+            #print(colorized_images.shape)
 
-        color_im_out = np.stack((grey, (y[:,:,0]).detach().numpy() * 255, (y[:,:,1]).detach().numpy() * 255), axis=-1)
-        output_imgs.append(color_im_out)
-    lab_image = output_imgs[0]
-    l_c = lab_image[:,:,0]
-    a_c = lab_image[:,:,1]
-    b_c = lab_image[:,:,2]
-    print("c1")
-    print(l_c[:5,:5])
-    print("c2")
-    print(a_c[:5,:5])
-    print("c3")
-    print(b_c[:5:,:5])
+            color = torch.tensor(color).float().unsqueeze(0)
+            color = color.permute(0, 3, 2, 1)
+            #print(color.shape)
+            outputs_fake = vgg(colorized_images) #run our fake colorized images thru VGG and see the scores
+            outputs_real = vgg(color) #get the real labels using the output
+
+            _, predicted_fake = torch.max(outputs_fake.data, 1) #take the scores and get the prediction (which label has highest score)
+            _, predicted_real = torch.max(outputs_real.data, 1)
+            current_correct += (predicted_fake == predicted_real).sum().item() #how many predictions are correct
+            correct_fake += current_correct
+            current_total = len(sample['input']) 
+            total += current_total
+
+            colorized_images = colorized_images.permute(0, 2, 3, 1)
+            colorized_images = colorized_images.squeeze(0)
+            output_imgs.append(colorized_images)
+
+            if (current_correct / current_total) > best_accuracy:
+              best_accuracy = current_correct / current_total
+              best_idx = i
+
+    accuracy = 100 * correct_fake / total
+
+    print(f'Accuracy on fake colorized images from model: {accuracy}%') #total accuracy of model
+
+    lab_image = output_imgs[best_idx]
+    #l_c = lab_image[:,:,0]
+    #a_c = lab_image[:,:,1]
+    #b_c = lab_image[:,:,2]
+    #print("c1")
+
+    #print(l_c[:5,:5])
+    #print("c2")
+
+    #print(a_c[:5,:5])
+    # print("c3")
+    # print(b_c[:5:,:5])
     rgb_image = lab2rgb(lab_image)
-    print("rgbc1")
-    print(rgb_image[:,:,0])
-    print("rgbc2")
-    print(rgb_image[:,:,1])
-    print("rgbc3")
-    print(rgb_image[:,:,2])
+    # print("rgbc1")
+    # print(rgb_image[:,:,0])
+    # print("rgbc2")
+    # print(rgb_image[:,:,1])
+    # print("rgbc3")
+    # print(rgb_image[:,:,2])
     output_directory = 'data/outputimages'
 
     scaled_rgb_image = rgb_image * 255.0
