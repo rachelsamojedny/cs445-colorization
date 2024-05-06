@@ -1,10 +1,7 @@
 # cs445-colorization
 
+The main.ipynb file contains the Jupyter notebook to run our project including training and evaluation..
 
-The main code for our projectg is in the main.ipynb file.
+Hyperparameters are defined at the beginning of the notebook. 
 
-Running all of the cells subsequently will work and hyper parameters can be tweaked in their respecitve cells. 
-
-The model code is stored in model.py
-
-train.py stores the code for model training and utils.py stores some utility functions for image conversion.
+The model is defined within model.py. Trainer is defined in train.py. utils.py stores some utility functions for image conversion.
