@@ -23,26 +23,17 @@ class ColorizationCNN(nn.Module):
         ##########       END      ##########
 
     def forward(self, x):
-        #1*256*256
         x = self.conv1(x)
         x = self.batchnorm1(x)
-        #16*256*256
         x = x.view(x.shape[0], x.shape[1], -1)
-        #16*65536
         x = self.fc1(x)
-        #16*2048
         x = self.relu(x)
         x = self.fc2(x)
-        #16*256
         x = x.view(x.shape[0], x.shape[1], 16, 16)
         x = self.batchnorm2(x)
-        #16*16*16
         x = self.conv2(x)
-        #2*16*16
         x = x.view(x.shape[0], x.shape[1], -1)
-        #2*256
         x = self.fc3(x)
-        #2*65536
         x = x.view(x.shape[0], x.shape[1], 256, 256)
         x = self.relu(x)
 
