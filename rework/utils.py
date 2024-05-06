@@ -64,9 +64,9 @@ def rgb2lab_batch(batch_rgb:torch.Tensor, customTransform):
         labs.append(newimg)
     return torch.stack(labs)
 
-def rgb_to_output(net, img):
+def rgb_to_output(net, img, device):
     img = img.unsqueeze(0)
     labinput = rgb2lab_batch(img, False)
-    L = labinput[:,:1,:,:]
+    L = labinput[:,:1,:,:].to(device)
     
     return net(L)
