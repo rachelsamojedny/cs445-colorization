@@ -12,15 +12,12 @@ class ColorizationCNN(nn.Module):
         self.imsize = 256
         
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(in_channels=16, out_channels=2, kernel_size=3, padding=1)
         self.fc1 = nn.Linear(65536,1024)
         self.fc2 = nn.Linear(1024,256)
+        self.fc3 = nn.Linear(256,65536)
         self.batchnorm1 = nn.BatchNorm2d(16)
         self.batchnorm2 = nn.BatchNorm2d(16)
-        self.conv2 = nn.Conv2d(in_channels=16, out_channels=2, kernel_size=3, padding=1)
-        self.fc3 = nn.Linear(256,65536)
-        self.batchnorm3 = nn.BatchNorm2d(2)
-
-        ##########       END      ##########
 
     def forward(self, x):
         x = self.conv1(x)
